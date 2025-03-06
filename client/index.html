@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/client/reset.css">
+    <link rel="stylesheet" href="/client/style.css">
+    <title>Tasks</title>
+</head>
+
+<body>
+    <p>Task Manager</p>
+    <table>
+        <dialog id="dialog_add_task">
+            <form id="add_task_form">
+                <p>Заголовок: <input name="title" type="text"></p>
+                <p>Описание: <input name="description" type="text"></p>
+                <p>Статус:
+                    <select name="status">
+                        <option value="Новая">Новая</option>
+                        <option value="В процессе">В процессе</option>
+                        <option value="Завершенная">Завершенная</option>
+                    </select>
+                </p>
+                <button id="dialog_add_task_button" type="submit">Добавить</button>
+            </form>
+        </dialog>
+        <dialog id="dialog_edit_task">
+            <form id="edit_task_form">
+                <p>ID: <input id="edit_id" name="edit_id" type="text" readonly></p>
+                <p>Заголовок: <input id="edit_title" name="edit_title" type="text"></p>
+                <p>Описание: <input id="edit_description" name="edit_description" type="text"></p>
+                <p>Статус:
+                    <select id="edit_status" name="edit_status">
+                        <option value="Новая">Новая</option>
+                        <option value="В процессе">В процессе</option>
+                        <option value="Завершенная">Завершенная</option>
+                    </select>
+                </p>
+                <button id="dialog_edit_task_button" type="submit">Изменить</button>
+                <button id="dialog_delete_task_button" type="button">Удалить</button>
+            </form>
+        </dialog>
+        <input type="submit" id="logOut" value="Выйти">
+        <input type="submit" id="add_task" value="Добавить задачу">
+        <select id="filter_status" name="filter_status">
+            <option value="Все">Все</option>
+            <option value="Новая">Новая</option>
+            <option value="В процессе">В процессе</option>
+            <option value="Завершенная">Завершенная</option>
+        </select>
+        <thead>
+            <tr>
+                <td>ID</td>
+                <td>Заголовок</td>
+                <td>Текст</td>
+                <td>Статус</td>
+                <td>Дата создания</td>
+            </tr>
+        </thead>
+        <tbody id="tasks_table">
+        </tbody>
+    </table>
+    <script src="/client/index_script.js">
+    </script>
+</body>
+
+</html>
