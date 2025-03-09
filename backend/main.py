@@ -1,15 +1,17 @@
 from fastapi import FastAPI, Depends
 from fastapi.responses import FileResponse, JSONResponse
-import fastapi
-from bcrypt import *
 import fastapi.encoders
 import fastapi.staticfiles
+from fastapi.middleware.cors import CORSMiddleware
+import fastapi
+from bcrypt import *
 import jwt
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from .database import *
-from .models import *
-from .core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, get_auth_bearer
+from database import *
+from models import *
+from core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, get_auth_bearer
+import uvicorn
 
 # функция для создания сессии базы данных
 def get_db():
@@ -37,17 +39,18 @@ def get_jwt(token):
 # инициализация приложения fastapi
 app = FastAPI()
 
-app.mount("/client", fastapi.staticfiles.StaticFiles(directory="client"), name="static")
+origins =[
+    "http://localhost:3000"
+]
 
-# эндпоинт гет, который принимает запрос на получение страницы приложения. ну и соответственно приняв его, возвращает файл этой страницы клиенту
-@app.get("/")
-def get():
-    return FileResponse("client/index.html")
-
-# эндпоинт, который принимает запрос на получение страницы авторизации
-@app.get("/login_register_page")
-def get():
-    return FileResponse("client/login_register_page.html")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+    expose_headers=["Authorization"]
+)
 
 # эндпоинт для авторизации, который принимает логин/пароль с формы, проверяет их соответствие формату, проверяет существование пользователя, его пароль, 
 # при успешном входе формирует и выдает jwt токен. 
@@ -82,14 +85,22 @@ def post(login = fastapi.Form(pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA
 # эндпоинт для получения списка задач. принимает значение фильтра, принимает токен. достает информацию о пользователе из токена,
 # создает и отправляет запрос к базе данных, для вывода задач с условием фильтра и определенного пользователя (по инфе из токена).
 @app.get("/tasks")
-def get(filter: str, token = Depends(get_auth_bearer) ,db: Session = Depends(get_db)):
+def get(filter_status: str, filter_date: str, token = Depends(get_auth_bearer) ,db: Session = Depends(get_db)):
     payload = get_jwt(token)
     if payload == None:
         return JSONResponse({"error": "get payload from token error"}, status_code=402)
-    if filter == "Все":
-        tasks = db.query(Tasks).filter(Tasks.user_id == payload["user_id"]).all()
+    
+    if filter_date == "":
+        if filter_status == "Все":
+            tasks = db.query(Tasks).filter(Tasks.user_id == payload["user_id"]).all()
+        else:
+            tasks = db.query(Tasks).filter(Tasks.user_id == payload["user_id"], Tasks.status == filter_status).all()
     else:
-        tasks = db.query(Tasks).filter(Tasks.user_id == payload["user_id"], Tasks.status == filter).all()
+        if filter_status == "Все":
+            tasks = db.query(Tasks).filter(Tasks.user_id == payload["user_id"], Tasks.dateOfCreation == filter_date).all()
+        else:
+            tasks = db.query(Tasks).filter(Tasks.user_id == payload["user_id"], Tasks.status == filter_status, Tasks.dateOfCreation == filter_date).all()
+    
     response = JSONResponse(fastapi.encoders.jsonable_encoder(tasks))
     return response
 
@@ -100,7 +111,7 @@ def post(data = fastapi.Body(),token = Depends(get_auth_bearer), db: Session = D
     payload = get_jwt(token)
     if payload == None:
         return JSONResponse({"error": "get payload from token error"}, status_code=402)
-    task = Tasks(title = data["title"], description = data["description"], status = data["status"], user_id = payload["user_id"], dateOfCreation = datetime.now().replace(microsecond=0))
+    task = Tasks(title = data["title"], description = data["description"], status = data["status"], user_id = payload["user_id"], dateOfCreation = datetime.date(datetime.now()))
     db.add(task)
     db.commit()
     return {"message": "Задача успешно добавлена!"}
@@ -134,3 +145,5 @@ def delete(id: int, token = Depends(get_auth_bearer), db: Session = Depends(get_
     db.delete(task)
     db.commit()
     return {"message": "задача успешно удалена!"}
+
+# uvicorn.run(app=app, host="0.0.0.0", port=3000)

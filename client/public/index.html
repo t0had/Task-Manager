@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/client/reset.css">
-    <link rel="stylesheet" href="/client/style.css">
+    <link rel="stylesheet" href="/public/reset.css">
+    <link rel="stylesheet" href="/public/style.css">
     <title>Tasks</title>
 </head>
 
@@ -24,6 +24,7 @@
                     </select>
                 </p>
                 <button id="dialog_add_task_button" type="submit">Добавить</button>
+                <button id="dialog_add_task_close" type="button">Отмена</button>
             </form>
         </dialog>
         <dialog id="dialog_edit_task">
@@ -40,6 +41,7 @@
                 </p>
                 <button id="dialog_edit_task_button" type="submit">Изменить</button>
                 <button id="dialog_delete_task_button" type="button">Удалить</button>
+                <button id="dialog_edit_task_close" type="button">Отмена</button>
             </form>
         </dialog>
         <input type="submit" id="logOut" value="Выйти">
@@ -50,6 +52,8 @@
             <option value="В процессе">В процессе</option>
             <option value="Завершенная">Завершенная</option>
         </select>
+        <input type="checkbox" id="filter_date_switch" name="filter_date_switch">
+        <input type="date" id="filter_date" name="filter_date">
         <thead>
             <tr>
                 <td>ID</td>
@@ -62,7 +66,7 @@
         <tbody id="tasks_table">
         </tbody>
     </table>
-    <script src="/client/index_script.js">
+    <script src="public/index_script.js">
     </script>
 </body>
 

@@ -1,3 +1,5 @@
+var backendUrl = "http://localhost:8000";
+
 // добавляет к кнопке "выход" обработку события "click".
 // при вызове этого события, всплывает окно подтверждения выхода.
 // в случае подтверждения удаляет jwt токен из localstorage, и адресует на страницу авторизации/регистрации
@@ -24,8 +26,19 @@ async function getData() {
         return;
     }
     var taskFilterData = {};
-    taskFilterData.filter = document.getElementById("filter_status").value;
-    var taskRequest = await fetch(`/tasks?filter=${taskFilterData.filter}`, { method: "GET", headers: { "Authorization": "Bearer " + auth_token } });
+    taskFilterData.filter_status = document.getElementById("filter_status").value;
+    taskFilterData.filter_date = document.getElementById("filter_date").value;
+    if (document.getElementById("filter_date_switch").checked){
+        if (taskFilterData.filter_date == null){
+            alert("Выберите дату!");
+            return;
+        }
+        var taskRequest = await fetch(`${backendUrl}/tasks?filter_status=${taskFilterData.filter_status}&filter_date=${taskFilterData.filter_date}`, { method: "GET", headers: { "Authorization": "Bearer " + auth_token } });
+    }
+    else{
+        var taskRequest = await fetch(`${backendUrl}/tasks?filter_status=${taskFilterData.filter_status}&filter_date=`, { method: "GET", headers: { "Authorization": "Bearer " + auth_token } });
+    }
+    
     if (taskRequest.ok == false) {
         alert("Недействительный токен! Пожалуйста, авторизуйтесь!");
         window.location.href = "/login_register_page";
@@ -76,6 +89,28 @@ getData();
 document.getElementById("filter_status").addEventListener("change", async function (event) {
     getData();
 })
+// при каждом изменении значения фильтра по дате, вызывает обновление задач
+document.getElementById("filter_date").addEventListener("change", async function (event) {
+    if (document.getElementById("filter_date_switch").checked == false){
+        alert("Нажмите галочку, чтобы задачи фильтровались по датам!");
+        document.getElementById("filter_date").value = null;
+        return;
+    }
+    getData();
+})
+
+// при каждом изменении флажка фильтра по дате, вызывает обновление задач
+document.getElementById("filter_date_switch").addEventListener("change", async function (event) {
+    if (document.getElementById("filter_date_switch").checked == false){
+        document.getElementById("filter_date").value = null;
+    }
+    else{
+        var currentDate = new Date();
+        strCurrentDate = currentDate.toISOString().slice(0,10);
+        document.getElementById("filter_date").value = strCurrentDate;
+    }
+    getData();
+})
 
 // добавляет обработку события нажатия на кнопку "добавить задачу", и при вызове этого события показывает окно с формой с полями для добавления задачи
 // при вызове события "submit" с формы, делает следующее:
@@ -95,14 +130,18 @@ document.getElementById("add_task_form").addEventListener("submit", async functi
     var auth_token = localStorage.getItem("auth_token");
     if (auth_token == null) {
         alert("Отсутствует токен! Пожалуйста, авторизуйтесь!");
-        window.location.href = "../login_register_page";
+        window.location.href = "/login_register_page";
         return;
     }
-    var taskPostResponse = await fetch("/tasks", { method: "POST", body: formDataJson, headers: { "Authorization": "Bearer " + auth_token, "Content-Type": "application/json" } });
+    var taskPostResponse = await fetch(`${backendUrl}/tasks`, { method: "POST", body: formDataJson, headers: { "Authorization": "Bearer " + auth_token, "Content-Type": "application/json" } });
     if (taskPostResponse.ok == false) {
         alert("Произошла ошибка при добавлении заметки");
     }
     alert("Запрос прошел успешно!");
+    var formF = document.getElementById("add_task_form");
+    formF.elements["title"].value = null;
+    formF.elements["description"].value = null;
+    formF.elements["status"].value = "Новая";
     getData();
 });
 
@@ -120,12 +159,12 @@ document.getElementById("edit_task_form").addEventListener("submit", async funct
     var auth_token = localStorage.getItem("auth_token");
     if (auth_token == null) {
         alert("Отсутствует токен! Пожалуйста, авторизуйтесь!");
-        window.location.href = "../login_register_page";
+        window.location.href = "/login_register_page";
         return;
     }
     var taskDataJson = JSON.stringify(taskData);
     console.log(taskDataJson);
-    var response = await fetch(`/tasks/${taskId}`, { method: "PUT", body: taskDataJson, headers: { "Authorization": "Bearer " + auth_token, "Content-Type": "application/json" } });
+    var response = await fetch(`${backendUrl}/tasks/${taskId}`, { method: "PUT", body: taskDataJson, headers: { "Authorization": "Bearer " + auth_token, "Content-Type": "application/json" } });
     console.log(response);
     if (response.ok == false) {
         alert("Произошла ошибка при изменении задачи!");
@@ -147,7 +186,7 @@ document.getElementById("dialog_delete_task_button").addEventListener("click", a
         window.location.href = "../login_register_page";
         return;
     }
-    var response = await fetch(`/tasks/${taskId}`, { method: "DELETE", headers: { "Authorization": "Bearer " + auth_token } });
+    var response = await fetch(`${backendUrl}/tasks/${taskId}`, { method: "DELETE", headers: { "Authorization": "Bearer " + auth_token } });
     if (response.ok == false) {
         alert("Произошла ошибка при удалении задачи!");
         return;
@@ -155,4 +194,12 @@ document.getElementById("dialog_delete_task_button").addEventListener("click", a
     alert("Задача успешно удалена!");
     document.getElementById("dialog_edit_task").close();
     getData();
+});
+
+document.getElementById("dialog_add_task_close").addEventListener("click", async function (event) {
+    document.getElementById("dialog_add_task").close();
+});
+
+document.getElementById("dialog_edit_task_close").addEventListener("click", async function (event) {
+    document.getElementById("dialog_edit_task").close();
 });
