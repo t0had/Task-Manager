@@ -1,9 +1,9 @@
 # Веб приложение для управления задачами
 ---
 #### Стек технологий
-Backend: язык Python, фреймворк FastAPI, модели ORM SQLAlchemy;
-База данных: Postgresql;
-Fronend: HTML, стили CSS, скрипты на JavaScript
+- Backend: язык Python, фреймворк FastAPI, модели ORM SQLAlchemy;
+- База данных: Postgresql;
+- Fronend: HTML, стили CSS, скрипты на JavaScript (честно скажу, на JS писал не сам, понимаю код лишь местами)
 
 # Описание приложения
 ---
