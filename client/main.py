@@ -18,4 +18,4 @@ def get():
 def get():
     return FileResponse("public/login_register_page.html")
 
-# uvicorn.run(app=app, host="0.0.0.0", port=8000)
+# uvicorn.run(app=app, host="0.0.0.0", port=3000)

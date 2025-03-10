@@ -39,10 +39,12 @@ def get_jwt(token):
 # инициализация приложения fastapi
 app = FastAPI()
 
+# массив с разрешенными источниками
 origins =[
     "http://localhost:3000"
 ]
 
+# добавление CORS настройки
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -88,7 +90,7 @@ def post(login = fastapi.Form(pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA
 def get(filter_status: str, filter_date: str, token = Depends(get_auth_bearer) ,db: Session = Depends(get_db)):
     payload = get_jwt(token)
     if payload == None:
-        return JSONResponse({"error": "get payload from token error"}, status_code=402)
+        return JSONResponse({"error": "get payload from token error"}, status_code=401)
     
     if filter_date == "":
         if filter_status == "Все":
@@ -108,9 +110,11 @@ def get(filter_status: str, filter_date: str, token = Depends(get_auth_bearer) ,
 # создает задачу, подставляя данные из тела запроса в нужные поля конструктора объекта задачи, добавляет эту задачу в базу данных, и сохраняет изменения
 @app.post("/tasks")
 def post(data = fastapi.Body(),token = Depends(get_auth_bearer), db: Session = Depends(get_db)):
+    if token == None:
+        return JSONResponse({"error": "get token error"}, status_code=401)
     payload = get_jwt(token)
     if payload == None:
-        return JSONResponse({"error": "get payload from token error"}, status_code=402)
+        return JSONResponse({"error": "get payload from token error"}, status_code=401)
     task = Tasks(title = data["title"], description = data["description"], status = data["status"], user_id = payload["user_id"], dateOfCreation = datetime.date(datetime.now()))
     db.add(task)
     db.commit()
@@ -119,13 +123,13 @@ def post(data = fastapi.Body(),token = Depends(get_auth_bearer), db: Session = D
 # эндпоинт, который принимает запрос на изменение задачи. в параметрах запроса передается id задачи. также он принимает тело запроса с данными существующей задачи, и токен.
 # ищет эту задачу в бд, подставляет данные из тела запроса в поля найденной задачи, и сохраняет изменения.
 @app.put("/tasks/{id}")
-def put(id: int, data = fastapi.Body(),token = Depends(get_auth_bearer), db: Session = Depends(get_db)):
+def put(id: int, data = fastapi.Body(), token = Depends(get_auth_bearer), db: Session = Depends(get_db)):
     payload = get_jwt(token)
     if payload == None:
-        return JSONResponse({"error": "get payload from token error"}, status_code=402)
+        return JSONResponse({"error": "get payload from token error"}, status_code=401)
     task = db.query(Tasks).filter(Tasks.id == id, Tasks.user_id == payload["user_id"]).first()
     if task == None:
-        return JSONResponse({"error": "this task doesn't exist"}, status_code=404)
+        return JSONResponse({"error": "this task doesn't exist for this user"}, status_code=403)
     task.title = data["title"]
     task.description = data["description"]
     task.status = data["status"]
@@ -138,12 +142,12 @@ def put(id: int, data = fastapi.Body(),token = Depends(get_auth_bearer), db: Ses
 def delete(id: int, token = Depends(get_auth_bearer), db: Session = Depends(get_db)):
     payload = get_jwt(token)
     if payload == None:
-        return JSONResponse({"error": "get payload from token error"}, status_code=402)
+        return JSONResponse({"error": "get payload from token error"}, status_code=401)
     task = db.query(Tasks).filter(Tasks.id == id, Tasks.user_id == payload["user_id"]).first()
     if task == None:
-        return JSONResponse({"error": "get payload from token error"}, status_code=404)
+        return JSONResponse({"error": "this task doesn't exist"}, status_code=404)
     db.delete(task)
     db.commit()
     return {"message": "задача успешно удалена!"}
 
-# uvicorn.run(app=app, host="0.0.0.0", port=3000)
+# uvicorn.run(app=app, host="0.0.0.0", port=8000)
