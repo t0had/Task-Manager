@@ -1,7 +1,9 @@
 backend/__pycache__/
+backend/core/__pycache__
+client/__pycache__
+backend/venv/
 *.pyc
 *.pyo
 *.pyd
-backend/venv/
 .git/
 .env
