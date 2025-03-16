@@ -64,7 +64,7 @@
     - `filter_status` (строка) – фильтр по статусу задачи (может быть "Все").
     - `filter_date` (строка) – фильтр по дате создания задачи.
 - **Зависимости:**
-    - `token = Depends(get_auth_bearer)` – проверка JWT-токена.
+    - `token = Depends(get_auth_bearer)` – получение JWT-токена, и вырезание из заголовка "authorization" элемента "Bearer" с помощью get_auth_bearer.
     - `db: Session = Depends(get_db)` – подключение к базе данных.
 4. @app.post("/tasks")
 - **Описание:**  
@@ -72,7 +72,7 @@
 - **Параметры:**
     - `data` (JSON) – содержит `title`, `description`, `status`.
 - **Зависимости:**
-    - `token = Depends(get_auth_bearer)` – проверка JWT-токена.
+    - `token = Depends(get_auth_bearer)` – получение JWT-токена, и вырезание из заголовка "authorization" элемента "Bearer" с помощью get_auth_bearer.
     - `db: Session = Depends(get_db)` – подключение к базе данных.
 5. @app.put("/tasks/{id}")
 - **Описание:**  
@@ -81,7 +81,7 @@
     - `id` (int) – идентификатор задачи.
     - `data` (JSON) – обновленные `title`, `description`, `status`.
 - **Зависимости:**
-    - `token = Depends(get_auth_bearer)` – проверка JWT-токена.
+    - `token = Depends(get_auth_bearer)` – получение JWT-токена, и вырезание из заголовка "authorization" элемента "Bearer" с помощью get_auth_bearer.
     - `db: Session = Depends(get_db)` – подключение к базе данных.
 6. @app.delete("/tasks/{id}")
 - **Описание:**  
@@ -89,5 +89,9 @@
 - **Параметры:**
     - `id` (int) – идентификатор задачи.
 - **Зависимости:**
-    - `token = Depends(get_auth_bearer)` – проверка JWT-токена.
+    - `token = Depends(get_auth_bearer)` – получение JWT-токена, и вырезание из заголовка "authorization" элемента "Bearer" с помощью get_auth_bearer.
     - `db: Session = Depends(get_db)` – подключение к базе данных.
+
+## Тестирование
+---
+Добавлен файл с тестами test_unit.py в папке backend. При его запуске все тесты выполняются успешно.

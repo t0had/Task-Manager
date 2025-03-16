@@ -50,7 +50,7 @@ async function postRegister(event) {
         if (response.status == 422){
             alert("Неправильный формат почты, или неправильная длина пароля!");
         }
-        if (response.status == 404){
+        if (response.status == 409){
             alert("Данный пользователь уже существует!");
         }
         return;

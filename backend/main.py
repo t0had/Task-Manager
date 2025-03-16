@@ -12,6 +12,7 @@ from database import *
 from models import *
 from core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, get_auth_bearer
 import uvicorn
+import json
 
 # функция для создания сессии базы данных
 def get_db():
@@ -73,7 +74,7 @@ def post(login = fastapi.Form(pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA
 def post(login = fastapi.Form(pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"), password = fastapi.Form(min_length=6, max_length=30), db: Session = Depends(get_db)):
     userExist = db.query(Users).filter(Users.login == login).first()
     if userExist != None:
-        return JSONResponse({"error": "this user elready exist"}, status_code=404)
+        return JSONResponse({"error": "this user elready exist"}, status_code=409)
     hashed_password = hashpw(str(password).encode(), gensalt()).decode()
     user = Users(login = login, password = hashed_password)
     db.add(user)
@@ -149,5 +150,6 @@ def delete(id: int, token = Depends(get_auth_bearer), db: Session = Depends(get_
     db.delete(task)
     db.commit()
     return {"message": "задача успешно удалена!"}
+
 
 # uvicorn.run(app=app, host="0.0.0.0", port=8000)
