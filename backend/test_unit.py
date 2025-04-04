@@ -1,8 +1,5 @@
 from fastapi.testclient import TestClient
-from fastapi import Depends
-from core.config import get_auth_bearer
-from main import app, get_jwt
-import json
+from main import app
 
 client = TestClient(app=app)
 
