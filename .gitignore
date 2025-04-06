@@ -1,4 +1,3 @@
 backend/__pycache__
-backend/core/__pycache__
-backend/.env
+.env
 client/__pycache__
