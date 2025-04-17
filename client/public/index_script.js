@@ -148,7 +148,7 @@ document.getElementById("add_task_form").addEventListener("submit", async functi
 // при вызове события "submit" с формы редактирования задачи, делает следующее:
 // собирает данные с формы в json объект, кодирует его в строку
 // получает токен с localstorage
-// отправляет post запрос на бэкэнд, с данными с формы в теле запроса, и токеном в заголовке
+// отправляет put запрос на бэкэнд, с данными с формы в теле запроса, и токеном в заголовке
 document.getElementById("edit_task_form").addEventListener("submit", async function (event) {
     event.preventDefault();
     var taskData = {};
@@ -184,6 +184,11 @@ document.getElementById("dialog_delete_task_button").addEventListener("click", a
     if (auth_token == null) {
         alert("Отсутствует токен! Пожалуйста, авторизуйтесь!");
         window.location.href = "../login_register_page";
+        return;
+    }
+    var confirmationDelete = confirm("Вы уверены, что хотите удалить задачу?");
+    if (!confirmationDelete) {
+        event.preventDefault();
         return;
     }
     var response = await fetch(`${backendUrl}/tasks/${taskId}`, { method: "DELETE", headers: { "Authorization": "Bearer " + auth_token } });

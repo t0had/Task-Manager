@@ -68,7 +68,7 @@ def post(login = fastapi.Form(pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA
         else:
             return JSONResponse({"error": "wrong_password!"}, status_code=401)
     except BaseException as e:
-        return JSONResponse({"error": e})
+        return JSONResponse({"error": e}, status_code=500)
 
 # эндпоинт для регистрации, который принимает логин/пароль с формы, проверяет их соответствие формату, проверяет существование пользователя, хеширует пароль, создает пользователя и добавляет в базу данных
 # при успешной регистрации формирует и выдает jwt токен
@@ -88,7 +88,7 @@ def post(login = fastapi.Form(pattern=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA
             return JSONResponse({"error": "create token error"}, status_code=409)
         return JSONResponse({"message": "authorization success"}, headers={"Authorization": "Bearer "+ access_token})
     except BaseException as e:
-        return JSONResponse({"error": e})
+        return JSONResponse({"error": e}, status_code=500)
 
 # эндпоинт для получения списка задач. принимает значение фильтра, принимает токен. достает информацию о пользователе из токена,
 # создает и отправляет запрос к базе данных, для вывода задач с условием фильтра и определенного пользователя (по инфе из токена).
@@ -113,7 +113,7 @@ def get(filter_status: str, filter_date: str, token = Depends(get_auth_bearer) ,
         response = JSONResponse(fastapi.encoders.jsonable_encoder(tasks))
         return response
     except BaseException as e:
-        return JSONResponse({"error": e})
+        return JSONResponse({"error": e}, status_code=500)
 
 # эндпоинт, который принимает запрос на создание задачи. он получает данные для создания задачи из тела запроса, также принимает токен для верификации пользователя.
 # создает задачу, подставляя данные из тела запроса в нужные поля конструктора объекта задачи, добавляет эту задачу в базу данных, и сохраняет изменения
@@ -130,7 +130,7 @@ def post(data = fastapi.Body(),token = Depends(get_auth_bearer), db: Session = D
         db.commit()
         return JSONResponse({"message": "Задача успешно добавлена!"})
     except BaseException as e:
-        return JSONResponse({"error": e})
+        return JSONResponse({"error": e}, status_code=500)
 
 # эндпоинт, который принимает запрос на изменение задачи. в параметрах запроса передается id задачи. также он принимает тело запроса с данными существующей задачи, и токен.
 # ищет эту задачу в бд, подставляет данные из тела запроса в поля найденной задачи, и сохраняет изменения.
@@ -149,7 +149,7 @@ def put(id: int, data = fastapi.Body(), token = Depends(get_auth_bearer), db: Se
         db.commit()
         return JSONResponse({"message": "задача успешно изменена!"})
     except BaseException as e:
-        return JSONResponse({"error": e})
+        return JSONResponse({"error": e}, status_code=500)
 
 # эндпоинт, который принимает запрос на удаление задачи. в параметрах запроса передается id задачи. также он принимает токен для верификации.
 # ищет эту задачу в бд, удаляет её и подтверждает изменения.
@@ -166,7 +166,7 @@ def delete(id: int, token = Depends(get_auth_bearer), db: Session = Depends(get_
         db.commit()
         return JSONResponse({"message": "задача успешно удалена!"})
     except BaseException as e:
-        return JSONResponse({"error": e})
+        return JSONResponse({"error": e}, status_code=500)
 
 
 # uvicorn.run(app=app, host="0.0.0.0", port=8000)

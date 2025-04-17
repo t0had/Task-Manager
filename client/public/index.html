@@ -15,7 +15,7 @@
         <dialog id="dialog_add_task">
             <form id="add_task_form">
                 <p>Заголовок: <input name="title" type="text"></p>
-                <p>Описание: <input name="description" type="text"></p>
+                <p>Описание: <textarea rows="6" name="description" type="text"></textarea></p>
                 <p>Статус:
                     <select name="status">
                         <option value="Новая">Новая</option>
@@ -31,7 +31,7 @@
             <form id="edit_task_form">
                 <p>ID: <input id="edit_id" name="edit_id" type="text" readonly></p>
                 <p>Заголовок: <input id="edit_title" name="edit_title" type="text"></p>
-                <p>Описание: <input id="edit_description" name="edit_description" type="text"></p>
+                <p>Описание: <textarea rows="6" id="edit_description" name="edit_description" type="text"></textarea> </p>
                 <p>Статус:
                     <select id="edit_status" name="edit_status">
                         <option value="Новая">Новая</option>
